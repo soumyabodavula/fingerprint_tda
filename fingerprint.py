@@ -44,9 +44,9 @@ def BinarizeFingerprint(imageName, method = "Pixel Blocks", blockSize = 8):
         im = To2DArr(img)
         BnW_image = np.zeros((len(im), len(im[0])))
         j = 0
-        while j+blockSize-1 < len(im):
+        while j+blockSize-1 < len(im[0]):
             i = 0
-            while i+blockSize-1 < len(im[0]):
+            while i+blockSize-1 < len(im):
                 mean = np.mean([np.mean(im[i+x][j:j+blockSize-1]) for x in range(0,blockSize)])
                 BnW_image[i+math.floor(blockSize/2)][j+math.floor(blockSize/2)] = im[i+math.floor(blockSize/2)][j+math.floor(blockSize/2)] >= mean
                 i += 1
@@ -59,9 +59,9 @@ def BinarizeFingerprint(imageName, method = "Pixel Blocks", blockSize = 8):
         im = To2DArr(img)
         BnW_image = np.zeros((len(im), len(im[0])))
         j = 0
-        while j+blockSize-1 < len(im):
+        while j+blockSize-1 < len(im[0]):
             i = 0
-            while i+blockSize-1 < len(im[0]):
+            while i+blockSize-1 < len(im):
                 mean = np.mean([np.mean(im[i+x][j:j+blockSize-1]) for x in range(0,blockSize)])
                 BnW_image[i+math.floor(blockSize/2)][j+math.floor(blockSize/2)] = im[i+math.floor(blockSize/2)][j+math.floor(blockSize/2)] >= mean
                 i += 1
@@ -72,9 +72,3 @@ def BinarizeFingerprint(imageName, method = "Pixel Blocks", blockSize = 8):
         raise Exception
 
     return BnW_image
-
-
-# BnW_image = BinarizeFingerprint("images/109_5.tif", method='Pixel Blocks', blockSize=15)
-
-# plt.imshow(BnW_image, cmap='gray')
-# plt.show()
