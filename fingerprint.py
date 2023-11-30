@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy import ndimage as ndi
 from skimage.util import random_noise, invert
+from skimage.morphology import skeletonize
 from skimage import feature, filters
 from skimage.io import imread
 import math
@@ -72,6 +73,8 @@ def BinarizeFingerprint(imageName, method = "Pixel Blocks", blockSize = 8):
 
     return BnW_image
 
-BnW_image = BinarizeFingerprint("109_5.tif", method='Pixel Blocks', blockSize=15)
-plt.imshow(BnW_image, cmap='gray')
-plt.show()
+
+# BnW_image = BinarizeFingerprint("images/109_5.tif", method='Pixel Blocks', blockSize=15)
+
+# plt.imshow(BnW_image, cmap='gray')
+# plt.show()
