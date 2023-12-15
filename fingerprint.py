@@ -51,7 +51,7 @@ def Arr2DToBW(img, thresh = 0.95):
     
     return im
 
-def BinarizeFingerprint(img, method = "Pixel Blocks", blockSize = 200, thresh = 0.01):
+def BinarizeFingerprint(img, method = "Pixel Blocks Optimized", blockSize = 200, thresh = 0.01):
     BnW_image = []
 
     if method == 'Canny': # USE CANNY FILTER
