@@ -9,6 +9,18 @@ from skimage import feature, filters
 from skimage.io import imread
 import math
 
+def ToPointCloud(BnW_image):
+    points = []
+    BnW_image_cpy = np.array([[[0]*len(BnW_image[0])]*len(BnW_image)])
+
+    for x in range(len(BnW_image)):
+        for y in range(len(BnW_image[x])):
+            if BnW_image[x][y] != 0:
+                points.append([x,y,])
+
+    points = np.array([points])
+    return points
+
 def To2DArr(img):
     im = np.zeros((len(img), len(img[0])), dtype=float)
 
@@ -27,10 +39,8 @@ def Arr2DToBW(img, thresh = 0.95):
     
     return im
 
-def BinarizeFingerprint(imageName, method = "Pixel Blocks", blockSize = 9, thresh = 0.01):
+def BinarizeFingerprint(img, method = "Pixel Blocks", blockSize = 15, thresh = 0.01):
     BnW_image = []
-
-    img = cv2.imread(imageName, cv2.IMREAD_ANYCOLOR)
 
     if method == 'Canny': # USE CANNY FILTER
         im = To2DArr(img)
@@ -56,9 +66,64 @@ def BinarizeFingerprint(imageName, method = "Pixel Blocks", blockSize = 9, thres
             j += 1
 
         # CREDIT TO https://ieeexplore.ieee.org/document/1716119
+    elif method == 'Pixel Blocks Optimized': # BINARIZATION ON EACH BLOCK SIZE PIXEL CHUNK
+        im = To2DArr(img)
+        BnW_image = np.zeros((len(im), len(im[0])))
+        j = 0
+        oldLenI = 0
+        newLenI = 0
+        while j < len(im[0]):
+            i = 0
+            means = -1
+            
+            while i < len(im):
+                half = math.floor(blockSize/2)
+                newLenI = min(i+half, len(im)-1) - max(i-half, 0)
+                if means != -1:
+                    #sum = sum - np.sum([im[max(i-half-1, 0)][y] for y in rangeJ]) + np.sum([im[min(i+half, len(im)-1)][y] for y in rangeJ]) 
+                    valToRemove = 0
+                    valToAdd = 0
+                    if(i-half-1 >= 0):
+                        valToRemove = np.mean([im[max(i-half, 0)][y] for y in rangeJ])
+                        a = means.pop(0)
+
+                    else:
+                        valToRemove = 0
+                    if(i+half <= len(im)-1):
+                        valToAdd = np.mean([im[min(i+half, len(im)-1)][y] for y in rangeJ])
+                        means.append(valToAdd)
+                    else:
+                        valToAdd = 0
+                    sum = sum + valToAdd - valToRemove
+
+                    #a = means.pop(0)
+                    #means.append(valToAdd)
+                    #mean = (mean*oldLenI + valToAdd - valToRemove)/newLenI
+                    #mean = np.mean(means)
+                    mean = sum/newLenI
+                else:
+                    rangeJ = range(max(j-half, 0), min(j+half, len(im[0])-1))
+                    rangeI = range(max(i-half, 0), min(i+half, len(im)-1))
+                    means = [np.mean([im[x][y] for y in rangeJ]) for x in rangeI]
+                    sum = np.sum(means)
+                    mean = np.mean(means)
+                BnW_image[i][j] = im[i][j] > mean - thresh
+                oldLenI = min(i+half, len(im)-1) - max(i-half, 0)
+                i += 1
+            j += 1
+
+        # CREDIT TO https://ieeexplore.ieee.org/document/1716119
     elif method == 'None': # USE PIXEL BY PIXEL THRESHOLD
         (thresh, BnW_image) = cv2.threshold(img, 120, 255, cv2.THRESH_BINARY)
     else:
+        print('Unrecognized Method')
         raise Exception
 
     return BnW_image
+
+
+# original_img = cv2.imread("images/badprint1.png", cv2.IMREAD_ANYCOLOR)
+# binarized_img = BinarizeFingerprint(original_img, method='Pixel Blocks Optimized', blockSize=15)
+
+# plt.imshow(binarized_img, cmap='gray')
+# plt.show()
