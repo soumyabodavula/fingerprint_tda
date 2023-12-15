@@ -8,6 +8,18 @@ from skimage.morphology import skeletonize
 from skimage import feature, filters
 from skimage.io import imread
 import math
+from gtda.homology import VietorisRipsPersistence
+from gtda.images import RadialFiltration
+
+def ToPersistenceDiagram(filtered):
+    persistence = VietorisRipsPersistence(
+        metric="euclidean",
+        homology_dimensions=[0, 1], # Track connected components, loops
+        n_jobs=6
+    )
+
+    diagrams_basic = persistence.fit_transform(filtered)
+    return diagrams_basic
 
 def ToPointCloud(BnW_image):
     points = []
@@ -39,7 +51,7 @@ def Arr2DToBW(img, thresh = 0.95):
     
     return im
 
-def BinarizeFingerprint(img, method = "Pixel Blocks", blockSize = 15, thresh = 0.01):
+def BinarizeFingerprint(img, method = "Pixel Blocks", blockSize = 200, thresh = 0.01):
     BnW_image = []
 
     if method == 'Canny': # USE CANNY FILTER
